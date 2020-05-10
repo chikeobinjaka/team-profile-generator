@@ -7,7 +7,7 @@ const fs = require("fs");
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 const render = require("./lib/htmlRenderer");
-
+const promptSync = require("prompt-sync")();
 function replacePlaceHolder(htmlTemplate, placeholder, replacement) {
   let retval = null;
   if (htmlTemplate != null && placeholder != null && replacement != null) {
@@ -139,24 +139,35 @@ const managerQuestions = [
     type: "input",
     message: "Phone Number? ",
   },
-  {
-      name: "again",
-      tyype: "confirm",
-      message: "Add Team Members? ",
-      default: true,
-  }
+  //   {
+  //     name: "again",
+  //     type: "confirm",
+  //     message: "Add Team Members? ",
+  //     default: true,
+  //   },
 ];
 
 let data = {};
-async function managerCall(){
-    console.log("Calling Maager Inquuire...");
-    let manager = await inquirer.prompt(managerQuestions);
-    data["manager"]
-    if (manager.again === true){
-        
-    }
-    console.log("Called...");
-    console.log(manager);
+async function managerCall() {
+  console.log("Calling Manager Inquire...\n\n");
+  let manager = await inquirer.prompt(managerQuestions);
+  console.log(manager);
+  let mgr = new Manager(manager.firstName, manager.lastName, manager.role, manager.email, manager.telNumber);
+  data["manager"] = mgr;
+  console.log(mgr);
+
+  let ans = promptSync("Add Interns to the team (y/n) Y?");
+  if (ans == null || ans == "") ans = "y";
+  if (ans.toLowerCase().charAt(0) != "n") {
+      
+  }
+  // add engineers to team
+  ans = promptSync("Add Engineers to the team (y/n) Y?");
+  if (ans == null || ans == "") ans = "y";
+  if (ans.toLowerCase().charAt(0) != "n") {
+  }
 }
 
+console.log("Yes/No");
+console.log(ans);
 managerCall();
