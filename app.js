@@ -73,12 +73,12 @@ const internQuestions = [
     message: "Choose Internship Role ",
     choices: [...internRoles],
   },
-  {
-    name: "again",
-    type: "confirm",
-    message: "Another Intern? ",
-    default: true,
-  },
+  // {
+  //   name: "again",
+  //   type: "confirm",
+  //   message: "Another Intern? ",
+  //   default: true,
+  // },
 ];
 
 const engineerQuestions = [
