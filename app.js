@@ -8,6 +8,9 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 const render = require("./lib/htmlRenderer");
 const promptSync = require("prompt-sync")();
+const utilities = require("./lib/utilities");
+const logIt = true;
+
 function replacePlaceHolder(htmlTemplate, placeholder, replacement) {
   let retval = null;
   if (htmlTemplate != null && placeholder != null && replacement != null) {
@@ -31,33 +34,6 @@ function loadTemplate(templateFilePath) {
 function generateEmployeeId() {
   return Math.floor((Math.random() * Date.now()) / 1000000);
 }
-
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
-
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
-
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
-
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
-let engineerTemplate = loadTemplate("./templates/engineer.html");
-let internTemplate = loadTemplate("./templates/intern.html");
-let managerTemplate = loadTemplate("./templates/manager.html");
-let mainTemplate = loadTemplate("./templates/main.html");
 
 const internRoles = ["Clerical", "Research", "Gofer", "Social Media", "Code Formatter"];
 
@@ -147,27 +123,72 @@ const managerQuestions = [
   //   },
 ];
 
+async function internCall() {
+  if (logIt) console.log("Calling Intern Inquire...\n\n");
+  let intern = await inquirer.prompt(internQuestions);
+  if (logIt) console.log(intern);
+  let intrn = new Intern(intern.firstName, intern.lastName, intern.role, intern.email, intern.school);
+  data["intern"].push(intrn);
+  if (logIt) console.log(data);
+  if (intern.again) internCall();
+  else return;
+}
+
+async function engineerCall() {
+  if (logIt) console.log("Calling Intern Inquire...\n\n");
+  let engineer = await inquirer.prompt(engineerQuestions);
+  if (logIt) console.log(engineer);
+  let engr = new Intern(intern.firstName, intern.lastName, intern.role, intern.email, intern.school);
+  data["engineer"].push(engr);
+  if (logIt) console.log(data);
+  if (engineer.again) engineerCall();
+  else return;
+}
+
 let data = {};
 async function managerCall() {
-  console.log("Calling Manager Inquire...\n\n");
+  if (logIt) console.log("Calling Manager Inquire...\n\n");
   let manager = await inquirer.prompt(managerQuestions);
-  console.log(manager);
+  if (logIt) console.log(manager);
   let mgr = new Manager(manager.firstName, manager.lastName, manager.role, manager.email, manager.telNumber);
   data["manager"] = mgr;
-  console.log(mgr);
+  if (logIt) console.log(data);
 
   let ans = promptSync("Add Interns to the team (y/n) Y?");
   if (ans == null || ans == "") ans = "y";
-  if (ans.toLowerCase().charAt(0) != "n") {
-      
+  while (ans.charAt(0) !== "n") {
+    let intern = await inquirer.prompt(internQuestions);
+    ans = promptSync("Add Interns to the team (y/n) Y?");
+    if (ans == null || ans == "") ans = "y";
   }
-  // add engineers to team
+  console.log("\nAre we waiting?\n");
+
   ans = promptSync("Add Engineers to the team (y/n) Y?");
   if (ans == null || ans == "") ans = "y";
   if (ans.toLowerCase().charAt(0) != "n") {
+    await engineerCall();
   }
+  console.log("\nAre we waiting?\n");
 }
 
-console.log("Yes/No");
-console.log(ans);
+let engineerTemplate = utilities.loadTemplate("./templates/engineer.html");
+let internTemplate = utilities.loadTemplate("./templates/intern.html");
+let managerTemplate = utilities.loadTemplate("./templates/manager.html");
+let mainTemplate = utilities.loadTemplate("./templates/main.html");
+
+if (logIt) {
+  console.log("==".repeat(20));
+  console.log(mainTemplate);
+  console.log("==".repeat(20) + "\n");
+  console.log(engineerTemplate);
+  console.log("==".repeat(20) + "\n");
+  console.log(internTemplate);
+  console.log("==".repeat(20) + "\n");
+  console.log(engineerTemplate);
+  console.log("==".repeat(20) + "\n");
+  console.log(managerTemplate);
+  console.log("==".repeat(20) + "\n");
+}
+data["intern"] = [];
+data["engineer"] = [];
 managerCall();
