@@ -35,22 +35,23 @@ function generateEmployeeId() {
   return Math.floor((Math.random() * Date.now()) / 1000000);
 }
 
-const internRoles = ["Clerical", "Research", "Gofer", "Social Media", "Code Formatter"];
+const internRoles = ["Clerical", "Research", "Gofer", "Social Media", "Code Formatter", "Intern"];
 
-const managerRoles = ["Project", "Finance", "HR", "Engineering", "Production", "Test", "Software"];
+const managerRoles = ["Project", "Finance", "HR", "Engineering", "Production", "Test", "Software", "Manager"];
 
-const engineerRoles = ["Junior", "Senior", "Development", "Database", "Architect"];
+const engineerRoles = ["Junior", "Senior", "Development", "Database", "Architect", "Engineer"];
 
 const employeeQuestions = [
   {
-    name: "firstName",
+    name: "name",
     type: "input",
-    message: "First Name? ",
+    message: "Enter Name: ",
   },
   {
-    name: "lastName",
+    name: "id",
     type: "input",
-    message: "Last Name? ",
+    message: "Enter ID:",
+    default: utilities.generateEmployeeId(),
   },
   {
     name: "email",
@@ -72,33 +73,23 @@ const internQuestions = [
     type: "list",
     message: "Choose Internship Role ",
     choices: [...internRoles],
+    default: "Intern",
   },
-  // {
-  //   name: "again",
-  //   type: "confirm",
-  //   message: "Another Intern? ",
-  //   default: true,
-  // },
 ];
 
 const engineerQuestions = [
   ...employeeQuestions,
   {
-    name: "role",
-    type: "list",
-    message: "Choose Engineer Role",
-    choices: [...engineerRoles],
-  },
-  {
-    name: "gitHubId",
+    name: "github",
     type: "input",
     message: "Github ID? ",
   },
   {
-    name: "again",
-    type: "confirm",
-    message: "Another Engineer? ",
-    default: true,
+    name: "role",
+    type: "list",
+    message: "Choose Engineer Role",
+    choices: [...engineerRoles],
+    default: "Engineer",
   },
 ];
 
@@ -109,66 +100,76 @@ const managerQuestions = [
     type: "list",
     message: "Choose Manager Role",
     choices: [...managerRoles],
+    default: "Manager",
   },
   {
-    name: "telNumber",
+    name: "officeNumber",
     type: "input",
     message: "Phone Number? ",
   },
-  //   {
-  //     name: "again",
-  //     type: "confirm",
-  //     message: "Add Team Members? ",
-  //     default: true,
-  //   },
 ];
 
-async function internCall() {
-  if (logIt) console.log("Calling Intern Inquire...\n\n");
-  let intern = await inquirer.prompt(internQuestions);
-  if (logIt) console.log(intern);
-  let intrn = new Intern(intern.firstName, intern.lastName, intern.role, intern.email, intern.school);
-  data["intern"].push(intrn);
-  if (logIt) console.log(data);
-  if (intern.again) internCall();
-  else return;
-}
+// async function internCall() {
+//   if (logIt) console.log("Calling Intern Inquire...\n\n");
+//   let intern = await inquirer.prompt(internQuestions);
+//   if (logIt) console.log(intern);
+//   let intrn = new Intern(intern.name, intern.id, intern.email, intern.school, intern.role);
+//   data["intern"].push(intrn);
+//   if (logIt) console.log(data);
+//   if (intern.again) internCall();
+//   else return;
+// }
 
-async function engineerCall() {
-  if (logIt) console.log("Calling Intern Inquire...\n\n");
-  let engineer = await inquirer.prompt(engineerQuestions);
-  if (logIt) console.log(engineer);
-  let engr = new Intern(intern.firstName, intern.lastName, intern.role, intern.email, intern.school);
-  data["engineer"].push(engr);
-  if (logIt) console.log(data);
-  if (engineer.again) engineerCall();
-  else return;
-}
+// async function engineerCall() {
+//   if (logIt) console.log("Calling Intern Inquire...\n\n");
+//   let engineer = await inquirer.prompt(engineerQuestions);
+//   if (logIt) console.log(engineer);
+//   let engr = new Intern(intern.firstName, intern.lastName, intern.role, intern.email, intern.school);
+//   data["engineer"].push(engr);
+//   if (logIt) console.log(data);
+//   if (engineer.again) engineerCall();
+//   else return;
+// }
 
 let data = {};
-async function managerCall() {
+async function dataCollectionCall() {
   if (logIt) console.log("Calling Manager Inquire...\n\n");
   let manager = await inquirer.prompt(managerQuestions);
   if (logIt) console.log(manager);
-  let mgr = new Manager(manager.firstName, manager.lastName, manager.role, manager.email, manager.telNumber);
+  let mgr = new Manager(manager.name, manager.id, manager.email, manager.officeNumber, manager.role);
   data["manager"] = mgr;
   if (logIt) console.log(data);
 
   let ans = promptSync("Add Interns to the team (y/n) Y?");
+  console.clear();
+  data["interns"] = [];
   if (ans == null || ans == "") ans = "y";
   while (ans.charAt(0) !== "n") {
+    console.log("=".repeat(20));
     let intern = await inquirer.prompt(internQuestions);
-    ans = promptSync("Add Interns to the team (y/n) Y?");
+    console.log(intern);
+    let intrn = new Intern(intern.name, intern.id, intern.email, intern.school, intern.role);
+    console.log(intrn);
+    data["interns"].push(intrn);
+    ans = promptSync("Add another intern to the team (y/n) Y?");
     if (ans == null || ans == "") ans = "y";
   }
   console.log("\nAre we waiting?\n");
 
   ans = promptSync("Add Engineers to the team (y/n) Y?");
   if (ans == null || ans == "") ans = "y";
-  if (ans.toLowerCase().charAt(0) != "n") {
-    await engineerCall();
+  console.clear();
+  data["engineers"] = [];
+  while (ans.charAt(0) !== "n") {
+    console.log("=".repeat(20));
+    let engineer = await inquirer.prompt(engineerQuestions);
+    console.log(engineer);
+    let engr = new Engineer(engineer.name, engineer.id, engineer.email, engineer.github, engineer.role);
+    console.log(engr);
+    data["engineers"].push(engr);
+    ans = promptSync("Add another engineer to the team (y/n) Y?");
+    if (ans == null || ans == "") ans = "y";
   }
-  console.log("\nAre we waiting?\n");
 }
 
 let engineerTemplate = utilities.loadTemplate("./templates/engineer.html");
@@ -176,19 +177,7 @@ let internTemplate = utilities.loadTemplate("./templates/intern.html");
 let managerTemplate = utilities.loadTemplate("./templates/manager.html");
 let mainTemplate = utilities.loadTemplate("./templates/main.html");
 
-if (logIt) {
-  console.log("==".repeat(20));
-  console.log(mainTemplate);
-  console.log("==".repeat(20) + "\n");
-  console.log(engineerTemplate);
-  console.log("==".repeat(20) + "\n");
-  console.log(internTemplate);
-  console.log("==".repeat(20) + "\n");
-  console.log(engineerTemplate);
-  console.log("==".repeat(20) + "\n");
-  console.log(managerTemplate);
-  console.log("==".repeat(20) + "\n");
-}
 data["intern"] = [];
 data["engineer"] = [];
-managerCall();
+console.clear();
+dataCollectionCall();
