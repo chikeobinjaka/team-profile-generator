@@ -100,7 +100,10 @@ const internQuestions = [
     name: "id",
     type: "input",
     message: "Enter ID:",
-    default: utilities.generateEmployeeId(),
+    default: function(sessionAnswer) {
+      return utilities.generateEmployeeId();
+    },
+    
   },
   {
     name: "school",
